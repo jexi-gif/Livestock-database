@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ash_entreprise</title>
+<style>
+:root{--bg:#f4f1e8;--card:#fff;--tx:#26241f;--mut:#6d6a60;--bd:#e3dfd2;--ac:#2f6b3a;--acbg:#e3f0df;--acx:#1d4a26;--dg:#a32d2d;--dgbg:#fceaea;--wn:#854f0b;--wnbg:#faeeda;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171611;--card:#23211b;--tx:#efece0;--mut:#a5a193;--bd:#38352c;--ac:#7fc78a;--acbg:#1f3523;--acx:#bfe5c4;--dg:#f09595;--dgbg:#4a1c1c;--wn:#fac775;--wnbg:#412402}}
+:root[data-theme="dark"]{--bg:#171611;--card:#23211b;--tx:#efece0;--mut:#a5a193;--bd:#38352c;--ac:#7fc78a;--acbg:#1f3523;--acx:#bfe5c4;--dg:#f09595;--dgbg:#4a1c1c;--wn:#fac775;--wnbg:#412402}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--ac);color:#fff;padding:18px 16px}
+header h1{margin:0;font-size:24px;letter-spacing:.3px}
+header p{margin:2px 0 0;font-size:14px;opacity:.85}
+main{padding:16px 16px 110px;max-width:720px;margin:0 auto}
+h2{font-size:18px;margin:22px 0 10px}
+h2:first-child{margin-top:4px}
+.sub{color:var(--mut);font-size:14px;margin:-6px 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;font:inherit;color:inherit}
+.tile i{display:block;font-style:normal;font-size:30px}
+.tile b{display:block;font-size:22px}
+.tile span{font-size:13px;color:var(--mut)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:13px;color:var(--mut)}
+.stat.good b{color:var(--ac)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px}
+.chip{flex:none;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:center}
+.card .ic{font-size:28px;flex:none}
+.card .bd{flex:1;min-width:0}
+.card b{font-size:16px}
+.card small{display:block;color:var(--mut);font-size:14px}
+.pill{flex:none;font-size:12px;padding:3px 10px;border-radius:12px;background:var(--acbg);color:var(--acx);font-weight:600}
+.pill.Sold,.pill.warn{background:var(--wnbg);color:var(--wn)}
+.pill.Deceased,.pill.low{background:var(--dgbg);color:var(--dg)}
+input,select{font:inherit;padding:11px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);width:100%;min-width:0}
+details{background:var(--card);border:1px solid var(--bd);border-radius:14px;margin-bottom:14px}
+summary{padding:13px 14px;font-weight:600;color:var(--ac);cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+form{padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+form label{display:flex;flex-direction:column;font-size:13px;color:var(--mut);gap:4px}
+form .full{grid-column:1/-1}
+.go{grid-column:1/-1;background:var(--ac);color:#fff;border:none;padding:13px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.msg{grid-column:1/-1;font-size:14px;min-height:0;color:var(--dg)}
+.bar{height:8px;background:var(--bd);border-radius:4px;margin-top:6px;overflow:hidden}
+.bar div{height:100%;background:var(--ac)}
+.bar.low div{background:var(--dg)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;border:none;background:none;color:var(--mut);font:inherit;font-size:11px;padding:4px 0;cursor:pointer}
+nav button i{display:block;font-style:normal;font-size:22px}
+nav button.on{color:var(--ac);font-weight:700}
+.total{display:flex;justify-content:space-between;font-weight:600;padding:4px 4px 0}
+</style>
+</head>
+<body>
+<header><h1>ash_entreprise</h1><p>Livestock management system</p></header>
+<main id="view"></main>
+<nav id="nav"></nav>
+<script>
+var TABS=[["Home","🏠"],["Animals","🐾"],["Health","💉"],["Output","📈"],["Money","💰"],["Feed","🌾"]];
+var species={1:"Cattle",2:"Goat",3:"Pig",4:"Sheep",5:"Rabbit",6:"Fish"};
+var icon={1:"🐄",2:"🐐",3:"🐖",4:"🐑",5:"🐇",6:"🐟"};
+var breeds={1:[1,"Friesian"],2:[1,"Boran"],3:[2,"Boer"],4:[2,"Saanen"],5:[3,"Large White"],6:[3,"Landrace"],7:[4,"Dorper"],8:[4,"Red Maasai"],9:[5,"New Zealand White"],10:[5,"California White"],11:[6,"Tilapia"],12:[6,"Catfish"]};
+var staff={1:"James Okello",2:"Mary Achieng",3:"Dr. Peter Mwangi",4:"Samuel Otieno"};
+var buyers={1:"Kamau Butchery",2:"Nairobi Meat Hub",3:"Wanjiru Farm",4:"Otieno Livestock Traders"};
+var suppliers={1:"GreenField Feeds",2:"AgroVet Supplies",3:"Sunrise Hay Traders"};
+var animals=[["CT001",1,"F","2021-03-12","Active"],["CT002",1,"F","2020-07-05","Active"],["CT003",1,"F","2022-01-20","Active"],["CT004",2,"M","2021-09-14","Active"],["CT005",2,"F","2019-11-02","Active"],["CT006",2,"M","2023-02-18","Active"],["CT007",1,"F","2023-06-10","Active"],["CT008",1,"M","2018-05-25","Active"],["CT009",2,"F","2022-08-30","Sold"],["CT010",2,"M","2023-12-01","Sold"],["GT001",3,"M","2021-04-10","Active"],["GT002",3,"F","2021-06-22","Active"],["GT003",3,"F","2022-02-14","Active"],["GT004",4,"F","2020-10-09","Active"],["GT005",4,"F","2022-05-17","Active"],["GT006",3,"M","2023-03-03","Sold"],["GT007",3,"F","2023-07-21","Active"],["GT008",4,"F","2023-09-15","Active"],["GT009",4,"M","2024-01-11","Active"],["GT010",3,"F","2022-12-01","Deceased"],["PG001",5,"M","2021-02-02","Active"],["PG002",5,"F","2021-08-19","Active"],["PG003",5,"F","2022-03-27","Active"],["PG004",6,"F","2022-06-30","Active"],["PG005",6,"F","2023-01-09","Active"],["PG006",6,"M","2023-05-12","Sold"],["PG007",5,"M","2024-02-20","Sold"],["PG008",5,"F","2024-03-15","Active"],["PG009",6,"M","2024-04-08","Sold"],["PG010",6,"F","2023-10-05","Active"],["SH001",7,"M","2022-05-10","Active"],["SH002",7,"F","2022-09-12","Active"],["SH003",8,"F","2023-04-04","Active"],["SH004",8,"F","2023-08-19","Active"],["SH005",7,"M","2024-01-30","Active"],["RB001",9,"F","2025-02-14","Active"],["RB002",9,"M","2025-02-14","Active"],["RB003",10,"F","2025-05-03","Active"],["RB004",10,"F","2025-06-21","Active"],["RB005",9,"F","2025-09-09","Active"],["RB006",10,"M","2025-09-09","Sold"],["FS001",11,"X","2026-02-01","Active"],["FS002",11,"X","2026-03-15","Active"],["FS003",12,"X","2026-01-10","Active"]].map(function(a){return{tag:a[0],breed:a[1],sex:a[2],birth:a[3],status:a[4]}});
+var health=[["CT001",3,"2026-01-10","Vaccination","Foot and mouth vaccine"],["CT002",3,"2026-01-10","Vaccination","Foot and mouth vaccine"],["CT003",2,"2026-02-14","Deworming","Albendazole"],["CT005",3,"2026-03-02","Treatment","Mastitis - antibiotic course"],["CT007",3,"2026-03-20","Check-up","Routine pregnancy check"],["GT002",3,"2026-02-05","Vaccination","PPR vaccine"],["GT004",4,"2026-02-18","Deworming","Ivermectin"],["GT010",3,"2026-04-11","Treatment","Pneumonia - not recovered"],["GT003",3,"2026-05-09","Check-up","Routine pregnancy check"],["PG001",3,"2026-01-25","Vaccination","Swine fever vaccine"],["PG002",3,"2026-01-25","Vaccination","Swine fever vaccine"],["PG004",2,"2026-03-14","Deworming","Piperazine"],["PG005",3,"2026-06-02","Treatment","Skin mange - ivermectin"],["PG008",4,"2026-06-20","Vaccination","Swine fever vaccine"],["CT004",3,"2026-07-08","Check-up","General health check"],["SH001",3,"2026-08-05","Vaccination","Enterotoxaemia vaccine"],["RB003",2,"2026-08-12","Deworming","Rabbit dewormer"],["FS001",4,"2026-08-20","Check-up","Water quality and disease check"]].map(function(h){return{tag:h[0],staff:h[1],date:h[2],type:h[3],tx:h[4]}});
+var prod=[["CT001",null,18.5],["CT002",null,16],["CT003",null,14.2],["CT005",null,9.8],["CT007",null,12],["CT004",520,null],["CT006",310.5,null],["GT004",null,2.8],["GT005",null,2.5],["GT008",null,2.1],["GT001",64,null],["PG001",210,null],["PG008",95.5,null],["PG010",120,null],["PG005",150,null],["SH001",72,null],["RB001",3.4,null],["FS001",0.45,null],["FS003",1.2,null]].map(function(p){return{tag:p[0],kg:p[1],milk:p[2],date:"2026-08-01"}});
+var sales=[[1,"CT009","2026-06-14",68000],[2,"CT010","2026-06-14",72000],[3,"GT006","2026-07-05",14500],[1,"PG006","2026-07-22",21000],[2,"PG007","2026-08-09",19500],[4,"PG009","2026-09-12",22000],[2,"RB006","2026-09-20",2500]].map(function(s){return{buyer:s[0],tag:s[1],date:s[2],price:s[3]}});
+var expenses=[[1,"2026-07-03","Feed",42000],[3,"2026-07-10","Hay",24000],[2,"2026-07-18","Veterinary drugs",8500],[1,"2026-08-02","Feed",45500],[3,"2026-08-12","Hay",21000],[2,"2026-08-20","Veterinary drugs",6200],[1,"2026-09-04","Feed",47000],[2,"2026-09-15","Mineral supplements",13500]].map(function(e){return{sup:e[0],date:e[1],cat:e[2],amt:e[3]}});
+var feed=[["Dairy meal",1,850,48],["Hay bales",3,1200,20],["Napier grass",3,2000,6],["Goat pellets",1,400,55],["Pig grower mash",1,650,52],["Mineral lick",2,90,150],["Rabbit pellets",1,180,60],["Fish pellets",1,300,95]];
+var tab=0,sp="0",q="";
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function spId(a){return breeds[a.breed][0]}
+function money(n){return "KES "+n.toLocaleString()}
+function age(d){var b=new Date(d),n=new Date(),m=(n.getFullYear()-b.getFullYear())*12+n.getMonth()-b.getMonth();if(n.getDate()<b.getDate())m--;return m>=12?Math.floor(m/12)+"y "+(m%12)+"m":m+" months"}
+function sexName(x){return x=="M"?"Male":x=="F"?"Female":"Mixed group"}
+function byTag(t){return animals.filter(function(a){return a.tag==t})[0]}
+function ic(t){var a=byTag(t);return a?icon[spId(a)]:"🐾"}
+function opts(o){return Object.keys(o).map(function(k){return'<option value="'+k+'">'+esc(Array.isArray(o[k])?species[o[k][0]]+" - "+o[k][1]:o[k])+"</option>"}).join("")}
+function tagOpts(){return animals.map(function(a){return"<option>"+a.tag+"</option>"}).join("")}
+function stat(v,l,c){return'<div class="stat '+(c||"")+'"><b>'+v+"</b><span>"+l+"</span></div>"}
+function home(){
+  var act=animals.filter(function(a){return a.status=="Active"});
+  var tiles=Object.keys(species).map(function(k){var n=act.filter(function(a){return spId(a)==k}).length;return'<button class="tile" data-sp="'+k+'"><i>'+icon[k]+"</i><b>"+n+"</b><span>"+species[k]+"</span></button>"}).join("");
+  var milk=prod.reduce(function(s,p){return s+(p.milk||0)},0);
+  var inc=sales.reduce(function(s,x){return s+x.price},0),exp=expenses.reduce(function(s,x){return s+x.amt},0);
+  var low=feed.filter(function(f){return f[2]<100}).length;
+  return"<h2>Active animals: "+act.length+'</h2><p class="sub">Tap a species to see its animals</p><div class="tiles">'+tiles+'</div><h2>Today at a glance</h2><div class="stats">'+stat(milk.toFixed(1)+" L","Milk recorded")+stat(low,"Feed items low")+stat(money(inc),"Total sales")+stat(money(exp),"Total expenses")+"</div><h2>Profit</h2>"+stat(money(inc-exp),"Sales minus expenses","good")}
+function animalsView(){
+  var chips='<button class="chip '+(sp=="0"?"on":"")+'" data-f="0">All</button>'+Object.keys(species).map(function(k){return'<button class="chip '+(sp==k?"on":"")+'" data-f="'+k+'">'+icon[k]+" "+species[k]+"</button>"}).join("");
+  var list=animals.filter(function(a){return(sp=="0"||spId(a)==sp)&&(a.tag+breeds[a.breed][1]).toLowerCase().indexOf(q.toLowerCase())>-1});
+  var cards=list.map(function(a){return'<div class="card"><div class="ic">'+icon[spId(a)]+'</div><div class="bd"><b>'+a.tag+"</b><small>"+breeds[a.breed][1]+" | "+sexName(a.sex)+" | "+age(a.birth)+'</small></div><span class="pill '+a.status+'">'+a.status+"</span></div>"}).join("");
+  return'<h2>Animals</h2><details id="da"><summary>+ Add a new animal</summary><form><label>Tag ID<input id="t1" placeholder="e.g. RB007"></label><label>Species and breed<select id="b1">'+opts(breeds)+'</select></label><label>Sex<select id="s1"><option value="F">Female</option><option value="M">Male</option><option value="X">Mixed group</option></select></label><label>Birth date<input id="d1" type="date"></label><div class="msg" id="m1"></div><button type="button" class="go" id="go1">Save animal</button></form></details><div class="chips">'+chips+'</div><input id="q" placeholder="Search by tag or breed" value="'+esc(q)+'" style="margin-bottom:12px">'+(cards||'<p class="sub">No animals found.</p>')+'<p class="sub">'+list.length+" animals shown</p>"}
+function healthView(){
+  var cards=health.slice().sort(function(a,b){return b.date.localeCompare(a.date)}).map(function(h){return'<div class="card"><div class="ic">'+ic(h.tag)+'</div><div class="bd"><b>'+h.tag+" - "+esc(h.tx)+"</b><small>"+h.date+" | "+staff[h.staff]+'</small></div><span class="pill '+(h.type=="Treatment"?"warn":"")+'">'+h.type+"</span></div>"}).join("");
+  return'<h2>Health records</h2><details id="dh"><summary>+ Add a health record</summary><form><label>Animal<select id="t2">'+tagOpts()+'</select></label><label>Type<select id="y2"><option>Vaccination</option><option>Deworming</option><option>Treatment</option><option>Check-up</option></select></label><label>Done by<select id="s2">'+opts(staff)+'</select></label><label>Date<input id="d2" type="date"></label><label class="full">Details<input id="x2" placeholder="e.g. Foot and mouth vaccine"></label><div class="msg" id="m2"></div><button type="button" class="go" id="go2">Save record</button></form></details>'+cards}
+function prodView(){
+  return'<h2>Production records</h2><p class="sub">Weight and milk, 1 August 2026</p>'+prod.map(function(p){return'<div class="card"><div class="ic">'+ic(p.tag)+'</div><div class="bd"><b>'+p.tag+"</b><small>"+p.date+'</small></div><span class="pill">'+(p.milk!=null?p.milk+" L milk":p.kg+" kg")+"</span></div>"}).join("")}
+function money_(){
+  var inc=sales.reduce(function(s,x){return s+x.price},0),exp=expenses.reduce(function(s,x){return s+x.amt},0);
+  return'<h2>Sales</h2>'+sales.map(function(s){return'<div class="card"><div class="ic">'+ic(s.tag)+'</div><div class="bd"><b>'+s.tag+" sold to "+buyers[s.buyer]+"</b><small>"+s.date+'</small></div><span class="pill">'+money(s.price)+"</span></div>"}).join("")+'<div class="total"><span>Total sales</span><span>'+money(inc)+'</span></div><h2>Expenses</h2>'+expenses.map(function(e){return'<div class="card"><div class="ic">🧾</div><div class="bd"><b>'+e.cat+"</b><small>"+e.date+" | "+suppliers[e.sup]+'</small></div><span class="pill warn">'+money(e.amt)+"</span></div>"}).join("")+'<div class="total"><span>Total expenses</span><span>'+money(exp)+'</span></div><h2>Profit</h2>'+stat(money(inc-exp),"Sales minus expenses","good")}
+function feedView(){
+  return'<h2>Feed stock</h2><p class="sub">Red means below 100 kg</p>'+feed.map(function(f){var low=f[2]<100;return'<div class="card" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+f[0]+"</b>"+(low?'<span class="pill low">Low stock</span>':"")+"</div><small style='color:var(--mut)'>"+suppliers[f[1]]+" | KES "+f[3]+"/kg | "+f[2]+' kg left</small><div class="bar '+(low?"low":"")+'"><div style="width:'+Math.min(100,f[2]/20)+'%"></div></div></div>'}).join("")}
+function render(){
+  document.getElementById("nav").innerHTML=TABS.map(function(t,i){return'<button class="'+(i==tab?"on":"")+'" data-i="'+i+'"><i>'+t[1]+"</i>"+t[0]+"</button>"}).join("");
+  document.getElementById("view").innerHTML=[home,animalsView,healthView,prodView,money_,feedView][tab]();
+  document.querySelectorAll("#nav button").forEach(function(b){b.onclick=function(){tab=+b.dataset.i;render();window.scrollTo(0,0)}});
+  document.querySelectorAll(".tile").forEach(function(b){b.onclick=function(){sp=b.dataset.sp;q="";tab=1;render();window.scrollTo(0,0)}});
+  if(tab==1){
+    document.querySelectorAll(".chip").forEach(function(b){b.onclick=function(){sp=b.dataset.f;render()}});
+    var qi=document.getElementById("q");
+    qi.oninput=function(){q=qi.value;var p=qi.selectionStart;render();var n=document.getElementById("q");n.focus();n.setSelectionRange(p,p)};
+    document.getElementById("go1").onclick=function(){
+      var t=document.getElementById("t1").value.trim().toUpperCase(),d=document.getElementById("d1").value,m=document.getElementById("m1");
+      if(!t){m.textContent="Enter a tag ID.";return}
+      if(byTag(t)){m.textContent="That tag ID already exists.";return}
+      if(!d){m.textContent="Pick a birth date.";return}
+      var b=+document.getElementById("b1").value;
+      animals.push({tag:t,breed:b,sex:document.getElementById("s1").value,birth:d,status:"Active"});
+      sp=String(breeds[b][0]);q="";render();}}
+  if(tab==2){document.getElementById("go2").onclick=function(){
+      var d=document.getElementById("d2").value,m=document.getElementById("m2");
+      if(!d){m.textContent="Pick a date.";return}
+      health.push({tag:document.getElementById("t2").value,staff:+document.getElementById("s2").value,date:d,type:document.getElementById("y2").value,tx:document.getElementById("x2").value||"-"});
+      render();}}
+}
+render();
+</script>
+</body>
+</html>
